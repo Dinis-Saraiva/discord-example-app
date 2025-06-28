@@ -10,6 +10,7 @@ import {
 } from "discord-interactions";
 import { getRandomEmoji, DiscordRequest } from "./utils.js";
 import { getShuffledOptions, getResult } from "./game.js";
+import { handlePlaySueca,handleSuecaComponent } from "./sueca.js";
 
 // Create an express app
 const app = express();
@@ -26,6 +27,14 @@ app.post(
   "/interactions",
   verifyKeyMiddleware(process.env.PUBLIC_KEY),
   async function (req, res) {
+    console.log(">> Entering /interactions");
+    // Log the request id, type and data for debugging
+    console.log("Incoming interaction:", {
+      id: req.body.id,
+      type: req.body.type,
+      data: req.body.data,
+    });
+
     // Interaction id, type and data
     const { id, type, data } = req.body;
 
@@ -60,7 +69,9 @@ app.post(
           },
         });
       }
-
+      if (name === "sueca" && id) {
+        return handlePlaySueca(id, res, req);
+      }
       // "challenge" command
       if (name === "challenge" && id) {
         // Interaction context
@@ -112,6 +123,9 @@ app.post(
       // custom_id set in payload when sending message component
       const componentId = data.custom_id;
 
+      if(componentId.startsWith("sueca_")) {
+        return handleSuecaComponent(id,res,req);
+      }
       if (componentId.startsWith("accept_button_")) {
         // get the associated game ID
         const gameId = componentId.replace("accept_button_", "");
@@ -166,7 +180,6 @@ app.post(
             id: userId,
             objectName,
           });
-
           // Remove game from storage
           delete activeGames[gameId];
           // Update message with token in request body

@@ -44,6 +44,23 @@ const CHALLENGE_COMMAND = {
   contexts: [0, 2],
 };
 
-const ALL_COMMANDS = [TEST_COMMAND, CHALLENGE_COMMAND];
+const MUSIC_COMMAND = {
+  name: 'music',
+  description: 'Play a song',
+  type: 1,
+  integration_types: [0, 1],
+  contexts: [0],
+};
+
+const SUECA_COMMAND = {
+  name: 'sueca',
+  description: 'Play a game of Sueca',
+  type: 1,
+  integration_types: [0, 1],
+  contexts: [0, 2],
+};
+
+const ALL_COMMANDS = [TEST_COMMAND, CHALLENGE_COMMAND, MUSIC_COMMAND, SUECA_COMMAND];
+
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);
