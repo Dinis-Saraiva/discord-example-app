@@ -60,11 +60,10 @@ export function handleSuecaComponent(id, res, req) {
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       data: {
         content: "Sueca game started! Good luck!",
-        flags: InteractionResponseFlags.IS_COMPONENTS_V2,
-        components: [],
       },
     });
   }
+
   if (componentId.startsWith("sueca_join_")) {
     console.log(">> Entering sueca join handler");
 
@@ -76,9 +75,10 @@ export function handleSuecaComponent(id, res, req) {
 
     if (!game) {
       return res.send({
-        type: 4, // CHANNEL_MESSAGE_WITH_SOURCE
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
           content: "Game not found or expired.",
+          flags: InteractionResponseFlags.EPHEMERAL,
         },
       });
     }
@@ -87,7 +87,7 @@ export function handleSuecaComponent(id, res, req) {
     const alreadyJoined = Object.values(game).includes(userId);
     if (alreadyJoined) {
       return res.send({
-        type: 4,
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
           content: "You already joined the game.",
           flags: InteractionResponseFlags.EPHEMERAL,
@@ -100,7 +100,7 @@ export function handleSuecaComponent(id, res, req) {
     else if (!game.p4) game.p4 = userId;
     else {
       return res.send({
-        type: 4,
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
           content: "Game is full!",
           flags: InteractionResponseFlags.EPHEMERAL,
@@ -109,7 +109,10 @@ export function handleSuecaComponent(id, res, req) {
     }
 
     const playerList = getSuecaPlayerList(gameId);
-    const isFull = game.p1 && game.p2 && game.p3 && game.p4;
+    const isFull = Boolean(game.p1 && game.p2 && game.p3 && game.p4);
+    console.log(
+      `Player ${userId} joined game ${gameId}.And the game is now full: ${isFull}`
+    );
     // Update the original message with new player list
     return res.send({
       type: InteractionResponseType.UPDATE_MESSAGE,
@@ -157,7 +160,6 @@ export function handlePlaySueca(id, res, req) {
     p4: null,
   };
 
-  // Create player list string dynamically
   const playerList = getSuecaPlayerList(id);
 
   console.log("<< Exiting handlePlaySueca");
